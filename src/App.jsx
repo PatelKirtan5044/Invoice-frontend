@@ -4,7 +4,7 @@ import InvoiceForm from './components/InvoiceForm';
 import InvoicePreview from './components/InvoicePreview';
 import { ArrowLeft, Printer, Download, Receipt } from 'lucide-react';
 
-const API_BASE = 'http://localhost:8000/api/invoices';
+const API_BASE = 'https://invoice-backend-bgn8.onrender.com/api/invoices';
 
 const initialInvoiceState = {
     invoiceNo: '',

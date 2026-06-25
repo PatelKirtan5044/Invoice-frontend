@@ -46,65 +46,116 @@ export default function Dashboard({ invoices, onEdit, onDelete, onCreateNew, loa
                 </div>
             </div>
 
-            <div className="bg-bg-secondary border border-border-color rounded-xl overflow-x-auto shadow-[var(--shadow-main)]">
-                {loading ? (
-                    <div className="p-12 text-center text-text-secondary text-base">
-                        <span className="w-2.5 h-2.5 bg-accent-primary rounded-full inline-block mr-2 animate-[simplePulse_1.2s_infinite]"></span> Loading invoices...
+            {loading ? (
+                <div className="bg-bg-secondary border border-border-color rounded-xl p-12 text-center text-text-secondary text-base shadow-[var(--shadow-main)]">
+                    <span className="w-2.5 h-2.5 bg-accent-primary rounded-full inline-block mr-2 animate-[simplePulse_1.2s_infinite]"></span> Loading invoices...
+                </div>
+            ) : filteredInvoices.length > 0 ? (
+                <>
+                    {/* Desktop View: Table */}
+                    <div className="hidden md:block bg-bg-secondary border border-border-color rounded-xl overflow-x-auto shadow-[var(--shadow-main)]">
+                        <table className="w-full border-collapse">
+                            <thead>
+                                <tr className="border-b border-border-color">
+                                    <th className="text-left px-5 py-4 text-xs font-extrabold text-text-secondary uppercase bg-black/[0.02] tracking-wider">Invoice No</th>
+                                    <th className="text-left px-5 py-4 text-xs font-extrabold text-text-secondary uppercase bg-black/[0.02] tracking-wider">Date</th>
+                                    <th className="text-left px-5 py-4 text-xs font-extrabold text-text-secondary uppercase bg-black/[0.02] tracking-wider">Client Name</th>
+                                    <th className="text-right px-5 py-4 text-xs font-extrabold text-text-secondary uppercase bg-black/[0.02] tracking-wider">Total Amount</th>
+                                    <th className="text-center px-5 py-4 text-xs font-extrabold text-text-secondary uppercase bg-black/[0.02] tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredInvoices.map((inv) => {
+                                    const totalAmt = inv.totals?.total || 0;
+                                    return (
+                                        <tr key={inv._id} className="border-b border-border-color hover:bg-black/[0.01] transition-colors">
+                                            <td className="px-5 py-4 text-sm font-bold text-text-primary flex items-center gap-2">
+                                                <FileText size={16} className="text-text-muted shrink-0" />
+                                                {inv.invoiceNo}
+                                            </td>
+                                            <td className="px-5 py-4 text-sm text-text-secondary">{formatDate(inv.invoiceDate)}</td>
+                                            <td className="px-5 py-4 text-sm text-text-secondary">{inv.billingDetails?.name}</td>
+                                            <td className="px-5 py-4 text-sm text-right font-mono font-bold text-text-primary">
+                                                ₹{totalAmt.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                            </td>
+                                            <td className="px-5 py-4 text-sm">
+                                                <div className="flex justify-center gap-2">
+                                                    <button 
+                                                        className="bg-none border border-border-color w-8 h-8 rounded-md flex items-center justify-center cursor-pointer transition-all text-text-secondary hover:text-accent-primary hover:bg-accent-light hover:border-accent-primary" 
+                                                        title="Edit Invoice"
+                                                        onClick={() => onEdit(inv)}
+                                                    >
+                                                        <Edit3 size={16} />
+                                                    </button>
+                                                    <button 
+                                                        className="bg-none border border-border-color w-8 h-8 rounded-md flex items-center justify-center cursor-pointer transition-all text-text-secondary hover:text-danger hover:bg-danger-light hover:border-danger" 
+                                                        title="Delete Invoice"
+                                                        onClick={() => onDelete(inv._id)}
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
                     </div>
-                ) : filteredInvoices.length > 0 ? (
-                    <table className="w-full border-collapse">
-                        <thead>
-                            <tr className="border-b border-border-color">
-                                <th className="text-left px-5 py-4 text-xs font-extrabold text-text-secondary uppercase bg-black/[0.02] tracking-wider">Invoice No</th>
-                                <th className="text-left px-5 py-4 text-xs font-extrabold text-text-secondary uppercase bg-black/[0.02] tracking-wider">Date</th>
-                                <th className="text-left px-5 py-4 text-xs font-extrabold text-text-secondary uppercase bg-black/[0.02] tracking-wider">Client Name</th>
-                                <th className="text-right px-5 py-4 text-xs font-extrabold text-text-secondary uppercase bg-black/[0.02] tracking-wider">Total Amount</th>
-                                <th className="text-center px-5 py-4 text-xs font-extrabold text-text-secondary uppercase bg-black/[0.02] tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredInvoices.map((inv) => {
-                                const totalAmt = inv.totals?.total || 0;
-                                return (
-                                    <tr key={inv._id} className="border-b border-border-color hover:bg-black/[0.01] transition-colors">
-                                        <td className="px-5 py-4 text-sm font-bold text-text-primary flex items-center gap-2">
-                                            <FileText size={16} className="text-text-muted shrink-0" />
+
+                    {/* Mobile View: Cards */}
+                    <div className="block md:hidden flex flex-col gap-4">
+                        {filteredInvoices.map((inv) => {
+                            const totalAmt = inv.totals?.total || 0;
+                            return (
+                                <div key={inv._id} className="bg-bg-secondary border border-border-color rounded-xl p-4 shadow-[var(--shadow-main)] flex flex-col gap-3">
+                                    <div className="flex justify-between items-center">
+                                        <span className="font-bold text-text-primary flex items-center gap-1.5 text-sm">
+                                            <FileText size={16} className="text-text-muted" />
                                             {inv.invoiceNo}
-                                        </td>
-                                        <td className="px-5 py-4 text-sm text-text-secondary">{formatDate(inv.invoiceDate)}</td>
-                                        <td className="px-5 py-4 text-sm text-text-secondary">{inv.billingDetails?.name}</td>
-                                        <td className="px-5 py-4 text-sm text-right font-mono font-bold text-text-primary">
-                                            ₹{totalAmt.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                                        </td>
-                                        <td className="px-5 py-4 text-sm">
-                                            <div className="flex justify-center gap-2">
-                                                <button 
-                                                    className="bg-none border border-border-color w-8 h-8 rounded-md flex items-center justify-center cursor-pointer transition-all text-text-secondary hover:text-accent-primary hover:bg-accent-light hover:border-accent-primary" 
-                                                    title="Edit Invoice"
-                                                    onClick={() => onEdit(inv)}
-                                                >
-                                                    <Edit3 size={16} />
-                                                </button>
-                                                <button 
-                                                    className="bg-none border border-border-color w-8 h-8 rounded-md flex items-center justify-center cursor-pointer transition-all text-text-secondary hover:text-danger hover:bg-danger-light hover:border-danger" 
-                                                    title="Delete Invoice"
-                                                    onClick={() => onDelete(inv._id)}
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                ) : (
-                    <div className="p-12 text-center text-text-muted text-base italic">
-                        {searchQuery ? 'No matching invoices found.' : 'No invoices saved yet. Click "Create Invoice" above to build your first one!'}
+                                        </span>
+                                        <span className="text-xs text-text-secondary">{formatDate(inv.invoiceDate)}</span>
+                                    </div>
+                                    
+                                    <div className="text-sm text-text-secondary">
+                                        <span className="text-[10px] text-text-muted uppercase block font-bold tracking-wider mb-0.5">Client</span>
+                                        <span className="font-semibold text-text-primary">{inv.billingDetails?.name || 'N/A'}</span>
+                                    </div>
+
+                                    <div className="flex justify-between items-center pt-3 border-t border-border-color/60">
+                                        <div>
+                                            <span className="text-[10px] text-text-muted uppercase block font-bold tracking-wider mb-0.5">Total</span>
+                                            <span className="font-mono font-bold text-text-primary text-base">
+                                                ₹{totalAmt.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                            </span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button 
+                                                className="bg-none border border-border-color w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer transition-all text-text-secondary hover:text-accent-primary hover:bg-accent-light hover:border-accent-primary" 
+                                                title="Edit Invoice"
+                                                onClick={() => onEdit(inv)}
+                                            >
+                                                <Edit3 size={16} />
+                                            </button>
+                                            <button 
+                                                className="bg-none border border-border-color w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer transition-all text-text-secondary hover:text-danger hover:bg-danger-light hover:border-danger" 
+                                                title="Delete Invoice"
+                                                onClick={() => onDelete(inv._id)}
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
-                )}
-            </div>
+                </>
+            ) : (
+                <div className="bg-bg-secondary border border-border-color rounded-xl p-12 text-center text-text-muted text-base italic shadow-[var(--shadow-main)]">
+                    {searchQuery ? 'No matching invoices found.' : 'No invoices saved yet. Click "Create Invoice" above to build your first one!'}
+                </div>
+            )}
         </div>
     );
 }
